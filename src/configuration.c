@@ -1181,60 +1181,6 @@ config_scan_pem_dir(char *pemdirin, hitch_config *cfg)
 	int retval = 0;
 	struct dirent **d;
 
-<<<<<<< HEAD
-	n = scandir(pemdir, &d, NULL, alphasort);
-	if (n < 0) {
-		config_error_set("Unable to open directory '%s': %s", pemdir,
-		    strerror(errno));
-		return (1);
-	}
-	for (i = 0; i < n; i++) {
-		struct cfg_cert_file *cert;
-		char *fpath;
-
-		plen = strlen(pemdir) + strlen(d[i]->d_name) + 1;
-
-		if (cfg->PEM_DIR_GLOB != NULL) {
-			if (fnmatch(cfg->PEM_DIR_GLOB, d[i]->d_name, 0))
-				continue;
-		}
-		if (d[i]->d_type != DT_REG)
-			continue;
-
-		fpath = malloc(plen);
-		AN(fpath);
-
-		if (snprintf(fpath, plen, "%s%s", pemdir, d[i]->d_name) < 0) {
-			config_error_set("An error occured while "
-			    "combining path");
-			free(fpath);
-			retval = 1;
-			break;
-		}
-
-		cert = cfg_cert_file_new();
-		config_assign_str(&cert->filename, fpath);
-		free(fpath);
-
-		int r = cfg_cert_vfy(cert);
-		if (r != 0) {
-			/* If no default has been set, use the first
-			 * match according to alphasort  */
-			if (cfg->CERT_DEFAULT == NULL)
-				cfg->CERT_DEFAULT = cert;
-			else
-				cfg_cert_add(cert, &cfg->CERT_FILES);
-		} else {
-			cfg_cert_file_free(&cert);
-		}
-	}
-
-	for (i = 0; i < n; i++)
-		free(d[i]);
-	free(d);
-
-	return (retval);
-=======
 	char *pemdir = strtok(pemdirin, ";");
 
 	while(pemdir != NULL) {
@@ -1249,6 +1195,40 @@ config_scan_pem_dir(char *pemdirin, hitch_config *cfg)
 			    strerror(errno));
 			return (1);
 		}
+		for (i = 0; i < n; i++) {
+			struct cfg_cert_file *cert;
+			char fpath[PATH_MAX + NAME_MAX];
+	
+			if (cfg->PEM_DIR_GLOB != NULL) {
+				if (fnmatch(cfg->PEM_DIR_GLOB, d[i]->d_name, 0))
+					continue;
+			}
+			if (d[i]->d_type != DT_REG)
+				continue;
+	
+			strncpy(fpath, pemdir, PATH_MAX + NAME_MAX - 1);
+			strncat(fpath, d[i]->d_name,
+			    PATH_MAX + NAME_MAX - strlen(fpath) - 1);
+	
+			cert = cfg_cert_file_new();
+			config_assign_str(&cert->filename, fpath);
+			int r = cfg_cert_vfy(cert);
+			if (r != 0) {
+				/* If no default has been set, use the first
+				 * match according to alphasort  */
+				if (cfg->CERT_DEFAULT == NULL)
+					cfg->CERT_DEFAULT = cert;
+				else
+					cfg_cert_add(cert, &cfg->CERT_FILES);
+			} else {
+				cfg_cert_file_free(&cert);
+			}
+			free(d[i]);
+		}
+	
+		free(d);
+		pemdir = strtok(NULL, ";");
+	}
 		for (i = 0; i < n; i++) {
 			struct cfg_cert_file *cert;
 			char fpath[PATH_MAX + NAME_MAX];
