@@ -1143,6 +1143,12 @@ config_scan_pem_dir(char *pemdirin, hitch_config *cfg)
 
 	char *pemdir = strtok(pemdirin, ";");
 
+	if (pemdir[strlen(pemdir) - 1] != '/'){
+		char *temp = calloc(strlen(pemdir+1), sizeof(char));
+		sprintf(temp, "%s%s", pemdir, "/");
+		pemdir=temp;
+	}
+
 	while(pemdir != NULL) {
 		n = scandir(pemdir, &d, NULL, alphasort);
 		if (n < 0) {
