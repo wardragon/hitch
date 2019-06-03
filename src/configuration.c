@@ -1182,7 +1182,6 @@ config_scan_pem_dir(char *pemdirin, hitch_config *cfg)
 	struct dirent **d;
 
 	char *pemdir = strtok(pemdirin, ";");
-
 	while(pemdir != NULL) {
 <<<<<<< HEAD
 		if (pemdir[strlen(pemdir) - 1] != '/'){
