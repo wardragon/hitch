@@ -1177,25 +1177,16 @@ config_disp_log_facility (int facility)
 int
 config_scan_pem_dir(char *pemdirin, hitch_config *cfg)
 {
-	int n, i, plen;
-	int retval = 0;
+	int n, i;
 	struct dirent **d;
 
 	char *pemdir = strtok(pemdirin, ";");
 	while(pemdir != NULL) {
-<<<<<<< HEAD
-		if (pemdir[strlen(pemdir) - 1] != '/'){
-			char *temp = calloc(strlen(pemdir+1), sizeof(char));
-			sprintf(temp, "%s%s", pemdir, "/");
-			pemdir=temp;
-		}
-=======
 	    	if (pemdir[strlen(pemdir) - 1] != '/'){
 	    		char *temp = calloc(strlen(pemdir+1), sizeof(char));
 	    		sprintf(temp, "%s%s", pemdir, "/");
 	    		pemdir=temp;
 	    	}
->>>>>>> ad6a0ea (messo check interno al ciclo.)
 		n = scandir(pemdir, &d, NULL, alphasort);
 		if (n < 0) {
 			config_error_set("Unable to open directory '%s': %s", pemdir,
