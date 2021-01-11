@@ -1227,40 +1227,6 @@ config_scan_pem_dir(char *pemdirin, hitch_config *cfg)
 		free(d);
 		pemdir = strtok(NULL, ";");
 	}
-		for (i = 0; i < n; i++) {
-			struct cfg_cert_file *cert;
-			char fpath[PATH_MAX + NAME_MAX];
-	
-			if (cfg->PEM_DIR_GLOB != NULL) {
-				if (fnmatch(cfg->PEM_DIR_GLOB, d[i]->d_name, 0))
-					continue;
-			}
-			if (d[i]->d_type != DT_REG)
-				continue;
-	
-			strncpy(fpath, pemdir, PATH_MAX + NAME_MAX - 1);
-			strncat(fpath, d[i]->d_name,
-			    PATH_MAX + NAME_MAX - strlen(fpath) - 1);
-	
-			cert = cfg_cert_file_new();
-			config_assign_str(&cert->filename, fpath);
-			int r = cfg_cert_vfy(cert);
-			if (r != 0) {
-				/* If no default has been set, use the first
-				 * match according to alphasort  */
-				if (cfg->CERT_DEFAULT == NULL)
-					cfg->CERT_DEFAULT = cert;
-				else
-					cfg_cert_add(cert, &cfg->CERT_FILES);
-			} else {
-				cfg_cert_file_free(&cert);
-			}
-			free(d[i]);
-		}
-	
-		free(d);
-		pemdir = strtok(NULL, ";");
-	}
 	return (0);
 }
 
